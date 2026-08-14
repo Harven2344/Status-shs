@@ -1,6 +1,6 @@
 const http = require('http');
 
-// Petit serveur pour faire plaisir au scanner de port de Render
+// Serveur HTTP pour que Render garde le service actif
 const port = process.env.PORT || 3000;
 http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -11,30 +11,17 @@ http.createServer((req, res) => {
 
 const STATUSPAGE_API_KEY = process.env.STATUSPAGE_API_KEY;
 const PAGE_ID = '9ndcl9nfpkgy';
-const METRIC_ID = 'ysyd19697wwl';
 
-async function updateResendMetric() {
-  if (!STATUSPAGE_API_KEY) {
-    console.error("❌ Variable STATUSPAGE_API_KEY manquante !");
-    return;
-  }
+// Les IDs de tes métriques Statuspage
+const RESEND_METRIC_ID = '30h0vls415dg';
+const WEBMAIL_METRIC_ID = 'zxr9mp49x68y'; // 👈 Remplace par le nouvel ID copié à l'étape 1
 
-  const startTime = Date.now();
-
-  try {
-    await fetch('https://api.resend.com/emails', {
-      method: 'GET',
-      headers: { 'Authorization': 'Bearer ping' }
-    });
-  } catch (err) {
-    // Erreur d'auth ignorée
-  }
-
-  const latency = Date.now() - startTime;
-  const currentTimestamp = Math.floor(Date.now() / 1000);
+// Fonction générique d'envoi vers Statuspage
+async function pushMetric(metricId, latency, name) {
+  if (!STATUSPAGE_API_KEY) return;
 
   try {
-    const response = await fetch(`https://api.statuspage.io/v1/pages/${PAGE_ID}/metrics/${METRIC_ID}/data.json`, {
+    const response = await fetch(`https://api.statuspage.io/v1/pages/${PAGE_ID}/metrics/${metricId}/data.json`, {
       method: 'POST',
       headers: {
         'Authorization': `OAuth ${STATUSPAGE_API_KEY}`,
@@ -42,23 +29,39 @@ async function updateResendMetric() {
       },
       body: JSON.stringify({
         data: {
-          timestamp: currentTimestamp,
+          timestamp: Math.floor(Date.now() / 1000),
           value: latency
         }
       })
     });
 
-    const data = await response.json();
-
     if (response.ok) {
-      console.log(`✅ Latence Resend envoyée : ${latency} ms`);
+      console.log(`✅ Latence ${name} envoyée : ${latency} ms`);
     } else {
-      console.error('❌ Erreur Statuspage :', data);
+      console.error(`❌ Erreur Statuspage (${name}) :`, await response.json());
     }
   } catch (error) {
-    console.error('❌ Erreur réseau :', error);
+    console.error(`❌ Erreur réseau (${name}) :`, error);
   }
 }
 
-updateResendMetric();
-setInterval(updateResendMetric, 300000);
+// Routine de vérification globale
+async function checkAll() {
+  // 1. Test de l'API Resend
+  const startResend = Date.now();
+  try {
+    await fetch('https://api.resend.com/emails', { headers: { 'Authorization': 'Bearer ping' } });
+  } catch (e) {}
+  await pushMetric(RESEND_METRIC_ID, Date.now() - startResend, 'Resend API');
+
+  // 2. Test du Webmail Eza Mail
+  const startWeb = Date.now();
+  try {
+    await fetch('https://mail.ezagroup.fr'); // URL de ton webmail
+  } catch (e) {}
+  await pushMetric(WEBMAIL_METRIC_ID, Date.now() - startWeb, 'Eza Mail Web');
+}
+
+// Lancement immédiat puis toutes les 5 minutes
+checkAll();
+setInterval(checkAll, 300000);
