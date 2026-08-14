@@ -4,7 +4,7 @@ const STATUSPAGE_API_KEY = process.env.STATUSPAGE_API_KEY;
 const PAGE_ID = '9ndcl9nfpkgy';
 
 // Tes IDs de métriques configurés
-const RESEND_METRIC_ID = 'ysyd19697ww1';
+const RESEND_METRIC_ID = 'ysyd19697wwl';
 const WEBMAIL_METRIC_ID = 'zxr9mp49x68y'; // 👈 Mis à jour avec ton nouvel ID
 
 // Stockage temporaire des résultats pour l'affichage Web
