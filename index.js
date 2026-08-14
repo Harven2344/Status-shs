@@ -13,7 +13,7 @@ const STATUSPAGE_API_KEY = process.env.STATUSPAGE_API_KEY;
 const PAGE_ID = '9ndcl9nfpkgy';
 
 // Les IDs de tes métriques Statuspage
-const RESEND_METRIC_ID = '30h0vls415dg';
+const RESEND_METRIC_ID = 'ysyd19697wwl';
 const WEBMAIL_METRIC_ID = 'zxr9mp49x68y'; // 👈 Remplace par le nouvel ID copié à l'étape 1
 
 // Fonction générique d'envoi vers Statuspage
