@@ -2,29 +2,26 @@ const STATUSPAGE_API_KEY = process.env.STATUSPAGE_API_KEY;
 const PAGE_ID = '9ndcl9nfpkgy';
 const METRIC_ID = '30h0vls415dg';
 
-
 async function updateResendMetric() {
   if (!STATUSPAGE_API_KEY) {
-    console.error("❌ Erreur : La variable STATUSPAGE_API_KEY n'est pas définie dans l'environnement !");
+    console.error("❌ Variable STATUSPAGE_API_KEY manquante dans Render !");
     return;
   }
 
   const startTime = Date.now();
 
-  // 1. Tester la latence de Resend
   try {
     await fetch('https://api.resend.com/emails', {
       method: 'GET',
       headers: { 'Authorization': 'Bearer ping' }
     });
   } catch (err) {
-    // On ignore l'erreur d'authentification : seul le temps de réponse HTTP nous intéresse
+    // Erreur d'auth ignorée, seul le temps de réponse HTTP nous intéresse
   }
 
   const latency = Date.now() - startTime;
   const currentTimestamp = Math.floor(Date.now() / 1000);
 
-  // 2. Envoyer la mesure à Statuspage
   try {
     const response = await fetch(`https://api.statuspage.io/v1/pages/${PAGE_ID}/metrics/${METRIC_ID}/data.json`, {
       method: 'POST',
@@ -34,6 +31,29 @@ async function updateResendMetric() {
       },
       body: JSON.stringify({
         data: {
+          timestamp: currentTimestamp,
+          value: latency
+        }
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log(`✅ Latence Resend envoyée avec succès : ${latency} ms`);
+    } else {
+      console.error('❌ Erreur Statuspage :', data);
+    }
+  } catch (error) {
+    console.error('❌ Erreur réseau :', error);
+  }
+}
+
+// Envoi immédiat au démarrage
+updateResendMetric();
+
+// Boucle toutes les 5 minutes (300 000 ms)
+setInterval(updateResendMetric, 300000);
           timestamp: currentTimestamp,
           value: latency
         }
