@@ -1,6 +1,6 @@
 const STATUSPAGE_API_KEY = process.env.STATUSPAGE_API_KEY;
 const PAGE_ID = '9ndcl9nfpkgy';
-const METRIC_ID = '30h0vls415dg';
+const METRIC_ID = 'ysyd19697wwl';
 
 async function updateResendMetric() {
   if (!STATUSPAGE_API_KEY) {
