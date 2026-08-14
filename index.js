@@ -1,3 +1,14 @@
+const http = require('http');
+
+// Petit serveur pour faire plaisir au scanner de port de Render
+const port = process.env.PORT || 3000;
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Statuspage pusher is running!\n');
+}).listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});
+
 const STATUSPAGE_API_KEY = process.env.STATUSPAGE_API_KEY;
 const PAGE_ID = '9ndcl9nfpkgy';
 const METRIC_ID = 'ysyd19697wwl';
