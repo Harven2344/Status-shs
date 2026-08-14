@@ -4,7 +4,7 @@ const METRIC_ID = '30h0vls415dg';
 
 async function updateResendMetric() {
   if (!STATUSPAGE_API_KEY) {
-    console.error("❌ Variable STATUSPAGE_API_KEY manquante dans Render !");
+    console.error("❌ Variable STATUSPAGE_API_KEY manquante !");
     return;
   }
 
@@ -16,7 +16,7 @@ async function updateResendMetric() {
       headers: { 'Authorization': 'Bearer ping' }
     });
   } catch (err) {
-    // Erreur d'auth ignorée, seul le temps de réponse HTTP nous intéresse
+    // Erreur d'auth ignorée
   }
 
   const latency = Date.now() - startTime;
@@ -27,7 +27,7 @@ async function updateResendMetric() {
       method: 'POST',
       headers: {
         'Authorization': `OAuth ${STATUSPAGE_API_KEY}`,
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         data: {
@@ -40,7 +40,7 @@ async function updateResendMetric() {
     const data = await response.json();
 
     if (response.ok) {
-      console.log(`✅ Latence Resend envoyée avec succès : ${latency} ms`);
+      console.log(`✅ Latence Resend envoyée : ${latency} ms`);
     } else {
       console.error('❌ Erreur Statuspage :', data);
     }
@@ -49,27 +49,5 @@ async function updateResendMetric() {
   }
 }
 
-// Envoi immédiat au démarrage
 updateResendMetric();
-
-// Boucle toutes les 5 minutes (300 000 ms)
 setInterval(updateResendMetric, 300000);
-          timestamp: currentTimestamp,
-          value: latency
-        }
-      })
-    });
-
-    if (response.ok) {
-      console.log(`✅ Latence Resend envoyée avec succès : ${latency} ms`);
-    } else {
-      const errorData = await response.json();
-      console.error('❌ Erreur Statuspage :', errorData);
-    }
-  } catch (error) {
-    console.error('❌ Erreur réseau :', error);
-  }
-}
-
-// Lancement immédiat
-updateResendMetric();
